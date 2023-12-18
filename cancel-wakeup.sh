@@ -11,14 +11,14 @@ getJobs
 # if there are no jobs, panic
 if [ -z "$jobs" ]; then
     echo "Nothing to cancel"
-    exit 1
+    exit 0
 fi
 
 oldJobs=$jobs
-echo $jobs
+# echo $jobs
 
 # echo $jobs | xargs -d ' ' -I {} atrm {}
-echo $jobs | xargs atrm
+echo $jobs | xargs atrm 
 # echo $jobs | while read -r job_id; do atrm "$job_id"; done
 
 getJobs
@@ -26,7 +26,7 @@ getJobs
 # jobs should be empty now
 if [ -n "$jobs" ]; then
     echo "Failed to cancel"
-    exit 1
+    exit 0
 fi
 
 # echo an english sentence describing the alarms that were cancelled, respecting singular/plural

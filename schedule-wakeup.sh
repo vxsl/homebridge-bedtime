@@ -2,10 +2,8 @@
 
 WEBHOOK_PORT="51828"
 ACCESSORY_ID="wakeup-webhooks"
-BUTTON_NAME="button1"
-COFFEE_BUTTON_NAME="button1"
-WAKEUP_BUTTON_NAME="button2"
-EVENT_ID="0"
+BUTTON1_NAME="button1"
+BUTTON2_NAME="button2"
 
 doLog() {
     echo $1
@@ -20,7 +18,9 @@ fi
 
 COFFEE_BUFFER=15
 
-WEBHOOK_BASE="http://localhost:$WEBHOOK_PORT/?accessoryId=$ACCESSORY_ID&buttonName=$BUTTON_NAME"
+WEBHOOK_BASE="http://localhost:$WEBHOOK_PORT/?accessoryId=$ACCESSORY_ID"
+WEBHOOK_BUTTON1_BASE="$WEBHOOK_BASE&buttonName=$BUTTON1_NAME"
+WEBHOOK_BUTTON2_BASE="$WEBHOOK_BASE&buttonName=$BUTTON2_NAME"
 
 # thanks ChatGPT
 verbal_to_boolean() {
@@ -119,17 +119,18 @@ fi
 RESP+=" up at $(convert_to_12h $WAKEUP_TIME)"
 
 if [ $COFFEE_PREPARED == "true" ]; then
+    curl -s "$WEBHOOK_BUTTON2_BASE&event=0" >/dev/null
     COFFEE_TIME=$(adjust_time $WAKEUP_TIME "-$COFFEE_BUFFER")
-    schedule $COFFEE_TIME "curl \"$WEBHOOK_BASE&event=0\""
+    schedule $COFFEE_TIME "curl \"$WEBHOOK_BUTTON1_BASE&event=0\""
     RESP+=", and coffee will be ready"
 # else
 #     RESP+=". Coffee has not been prepared"
 fi
 
 if [ $SLEEP_IN == "true" ]; then
-    schedule $WAKEUP_TIME "curl \"$WEBHOOK_BASE&event=1\""
+    schedule $WAKEUP_TIME "curl \"$WEBHOOK_BUTTON1_BASE&event=1\""
 else
-    schedule $WAKEUP_TIME "curl \"$WEBHOOK_BASE&event=2\""
+    schedule $WAKEUP_TIME "curl \"$WEBHOOK_BUTTON1_BASE&event=2\""
 fi
 
 doLog "$RESP. Goodnight."
