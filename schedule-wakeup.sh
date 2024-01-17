@@ -54,17 +54,11 @@ verbal_to_boolean() {
     exit
 }
 
-convert_time() {
-    # Try 24-hour format
-    _convert_time_return=$(date -d "$(echo "$1" | sed 's/ at / /')" "+%H:%M" 2>/dev/null)
-    if [[ -z $_convert_time_return ]]; then
-        # Try 12-hour format
-        _convert_time_return=$(date -d "$(echo "$1" | sed 's/ at / /')" "+%H:%M" 2>/dev/null)
-        if [[ -z $_convert_time_return ]]; then
-            # If both formats fail, print an error message and panic
-            doLog "Sorry, I didn't understand that. Please try again."
-            exit
-        fi
+validate_time_format() {
+    local time_pattern='^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+    if [[ ! $1 =~ $time_pattern ]]; then
+        doLog "Sorry, I didn't understand that. Please try again."
+        exit
     fi
 }
 
@@ -104,8 +98,8 @@ schedule() {
 COFFEE_PREPARED=$(to_boolean "$1")
 verbal_to_boolean "$2"
 SLEEP_IN="$_verbal_to_boolean_return"
-convert_time "$3"
-WAKEUP_TIME="$_convert_time_return"
+validate_time_format "$3"
+WAKEUP_TIME="$3"
 ONLY_ONE_PERSON="$4"
 
 RESP="OK, I'll wake "
@@ -134,3 +128,4 @@ else
 fi
 
 doLog "$RESP. Goodnight."
+
